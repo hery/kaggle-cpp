@@ -10,6 +10,8 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
+NUMBER_OF_CLUSTERS = 15
+
 def plot_cluster(X_train, km):
 	fig = plt.figure(1, figsize=(4,3))
 	plt.clf()
@@ -26,42 +28,39 @@ def plot_cluster(X_train, km):
 	plt.show()
 
 # Load training coupons
-# Extract features
 filename_train = 'data/csv/coupon_list_train.csv'
 df_train = pd.read_csv(filename_train, header=0)
+
+# Extract features
 # limited_df_train = df_train[['COUPON_ID_hash', 'GENRE_NAME', 'PRICE_RATE']]
 limited_df_train = df_train[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
-# np_array = df_train.as_matrix()
 # headers = list(df_train.columns.values)
+
 # Encode categories into integers
 genre_encoder = LabelEncoder()
 large_area_name_encoder = LabelEncoder()
 coupon_id_encoder = LabelEncoder()
-# Fit label encoder and return encoded labels
-# labels = genre_encoder.fit_transform(limited_df_train['GENRE_NAME'])
-# classes = label_encoder.classes_
-# print label_encoder.transform(['グルメ','グルメ'])
-# label_encoder.fit(limited_df_train)
-# # Similarly, we can encode the original mutable data frame
 limited_df_train.loc[:,('GENRE_NAME')] = genre_encoder.fit_transform(limited_df_train['GENRE_NAME'])
 limited_df_train.loc[:,('large_area_name')] = large_area_name_encoder.fit_transform(limited_df_train['large_area_name'])
 # limited_df_train.loc[:,('COUPON_ID_hash')] = coupon_id_encoder.fit_transform(limited_df_train['COUPON_ID_hash'])
-# Use One Hot Encoder to convert categorical features to binary features
-# matrice = OneHotEncoder().fit_transform(limited_df_train.as_matrix)
-## Clusterize using kmeans
+
+# Clusterize using kmeans
 X_train = limited_df_train.as_matrix()
-km = KMeans(n_clusters=8, init='k-means++', max_iter=100, n_init=1)
+km = KMeans(n_clusters=NUMBER_OF_CLUSTERS, init='k-means++', max_iter=100, n_init=1)
 km.fit(X_train)
-# Finally, observe the result
-# print km.labels_
-# plot_cluster(X_train, km)
+
+# Plot clusters
+plot_cluster(X_train, km)
 
 # Load testing coupons
-# Classify within trainin clusters
 filename_test = 'data/csv/coupon_list_test.csv'
 df_test = pd.read_csv(filename_test, header=0)
+
+# Extract training coupons features
 limited_df_test = df_test[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
 limited_df_test.loc[:,('GENRE_NAME')] = genre_encoder.fit_transform(limited_df_test['GENRE_NAME'])
 limited_df_test.loc[:,('large_area_name')] = large_area_name_encoder.fit_transform(limited_df_test['large_area_name'])
 X_test = limited_df_test.as_matrix()
+
+# Classify within trainin clusters
 predictions_test = km.predict(X_test)
