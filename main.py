@@ -39,10 +39,8 @@ limited_df_train = df_train[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
 # Encode categories into integers
 genre_encoder = LabelEncoder()
 large_area_name_encoder = LabelEncoder()
-# coupon_id_encoder = LabelEncoder()
 limited_df_train.loc[:,('GENRE_NAME')] = genre_encoder.fit_transform(limited_df_train['GENRE_NAME'])
 limited_df_train.loc[:,('large_area_name')] = large_area_name_encoder.fit_transform(limited_df_train['large_area_name'])
-# limited_df_train.loc[:,('COUPON_ID_hash')] = coupon_id_encoder.fit_transform(limited_df_train['COUPON_ID_hash'])
 
 # Clusterize using kmeans
 X_train = limited_df_train.as_matrix()
@@ -51,10 +49,10 @@ km.fit(X_train)
 
 # Plot clusters for observation
 # plot_cluster(X_train, km)
-train_cluster_indexes = km.predict(X_train)
 
 # TODO: Maybe map COUPON_ID_hash -> cluster_index
 coupon_id_hashes = df_train['COUPON_ID_hash']
+train_cluster_indexes = km.predict(X_train)
 coupon_id_hash_cluster_index_map = pandas.DataFrame(dict(
 	COUPON_ID_hash=coupon_id_hashes, 
 	cluster_index=train_cluster_indexes))
