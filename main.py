@@ -53,7 +53,7 @@ km.fit(X_train)
 # TODO: Maybe map COUPON_ID_hash -> cluster_index
 coupon_id_hashes = df_train['COUPON_ID_hash']
 train_cluster_indexes = km.predict(X_train)
-coupon_id_hash_cluster_index_map = pandas.DataFrame(dict(
+coupon_id_hash_cluster_index_map = pd.DataFrame(dict(
 	COUPON_ID_hash=coupon_id_hashes, 
 	cluster_index=train_cluster_indexes))
 
@@ -61,9 +61,16 @@ coupon_id_hash_cluster_index_map = pandas.DataFrame(dict(
 filename_detail = 'data/csv/coupon_detail_train.csv'
 df_detail = pd.read_csv(filename_detail, header=0)
 
+# Add clusters to df_detail
+df_detail_clustered = pd.merge(df_detail, coupon_id_hash_cluster_index_map, on='COUPON_ID_hash')
+
 # Group purchases by user
-user_purchase_history = df_detail.groupby('USER_ID_hash')
+user_purchase_history = df_detail_clustered.groupby('USER_ID_hash')
 grouped_user_purchase_history = user_purchase_history.groups
+
+# Or by user and cluster
+user_cluster = df_detail_clustered.groupby(['USER_ID_hash', 'cluster_index'])
+grouped_user_cluster = user_cluster.groups
 
 # Todo: Map USER_ID_hash -> cluster_index based on purchases
 
