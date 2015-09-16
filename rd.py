@@ -22,7 +22,7 @@ limited_df = df[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
 # Encode categories into integers
 genre_encoder = LabelEncoder()
 large_area_name_encoder = LabelEncoder()
-coupon_id_encoder = LabelEncoder()
+# coupon_id_encoder = LabelEncoder()
 # Fit label encoder and return encoded labels
 # labels = genre_encoder.fit_transform(limited_df['GENRE_NAME'])
 # classes = label_encoder.classes_

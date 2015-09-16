@@ -39,7 +39,7 @@ limited_df_train = df_train[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
 # Encode categories into integers
 genre_encoder = LabelEncoder()
 large_area_name_encoder = LabelEncoder()
-coupon_id_encoder = LabelEncoder()
+# coupon_id_encoder = LabelEncoder()
 limited_df_train.loc[:,('GENRE_NAME')] = genre_encoder.fit_transform(limited_df_train['GENRE_NAME'])
 limited_df_train.loc[:,('large_area_name')] = large_area_name_encoder.fit_transform(limited_df_train['large_area_name'])
 # limited_df_train.loc[:,('COUPON_ID_hash')] = coupon_id_encoder.fit_transform(limited_df_train['COUPON_ID_hash'])
@@ -49,18 +49,35 @@ X_train = limited_df_train.as_matrix()
 km = KMeans(n_clusters=NUMBER_OF_CLUSTERS, init='k-means++', max_iter=100, n_init=1)
 km.fit(X_train)
 
-# Plot clusters
-plot_cluster(X_train, km)
+# Plot clusters for observation
+# plot_cluster(X_train, km)
+train_cluster_indexes = km.predict(X_train)
 
-# Load testing coupons
-filename_test = 'data/csv/coupon_list_test.csv'
-df_test = pd.read_csv(filename_test, header=0)
+# TODO: Maybe map COUPON_ID_hash -> cluster_index
+coupon_id_hashes = df_train['COUPON_ID_hash']
+coupon_id_hash_cluster_index_map = pandas.DataFrame(dict(
+	COUPON_ID_hash=coupon_id_hashes, 
+	cluster_index=train_cluster_indexes))
 
-# Extract training coupons features
-limited_df_test = df_test[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
-limited_df_test.loc[:,('GENRE_NAME')] = genre_encoder.fit_transform(limited_df_test['GENRE_NAME'])
-limited_df_test.loc[:,('large_area_name')] = large_area_name_encoder.fit_transform(limited_df_test['large_area_name'])
-X_test = limited_df_test.as_matrix()
+# Load buying history set
+filename_detail = 'data/csv/coupon_detail_train.csv'
+df_detail = pd.read_csv(filename_detail, header=0)
 
-# Classify within trainin clusters
-predictions_test = km.predict(X_test)
+# Group purchases by user
+user_purchase_history = df_detail.groupby('USER_ID_hash')
+grouped_user_purchase_history = user_purchase_history.groups
+
+# Todo: Map USER_ID_hash -> cluster_index based on purchases
+
+# # Load testing coupons
+# filename_test = 'data/csv/coupon_list_test.csv'
+# df_test = pd.read_csv(filename_test, header=0)
+
+# # Extract training coupons features
+# limited_df_test = df_test[['GENRE_NAME', 'PRICE_RATE', 'large_area_name']]
+# limited_df_test.loc[:,('GENRE_NAME')] = genre_encoder.fit_transform(limited_df_test['GENRE_NAME'])
+# limited_df_test.loc[:,('large_area_name')] = large_area_name_encoder.fit_transform(limited_df_test['large_area_name'])
+# X_test = limited_df_test.as_matrix()
+
+# # Classify within trainin clusters
+# predictions_test = km.predict(X_test)
